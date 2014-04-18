@@ -1,6 +1,6 @@
 # karma-sourcemap-loader
 
-> Preprocessor that locates and loads existing source map files.
+> Preprocessor that locates and loads existing source maps.
 
 ## Why
 
@@ -11,13 +11,14 @@ don't get loaded by karma and you lose the advantages of having them.
 
 ## How it works
 
-Right now source maps are located via this rule: the preprocessors appends
-".map" to the file name, and if that file exists it loads and includes it.
+This plug-in supports both inline and external source maps.
 
+Inline source maps are located by searching "sourceMappingURL=" inside the javascript
+file, both plain text and base64-encoded maps are supported.
+
+External source maps are located by appending ".map" to the javascript file name.
 So if for example you have Hello.js, the preprocessor will try to load source map from
 Hello.js.map.
-
-This is very simple but should work in the majority of cases for standard usage (e.g. with typescript).
 
 ## Installation
 
@@ -25,7 +26,7 @@ Just write `karma-sourcemap-loader` as a devDependency in your `package.json`.
 ```json
 {
   "devDependencies": {
-    "karma-sourcemap-loader": "~0.1"
+    "karma-sourcemap-loader": "~0.2"
   }
 }
 ```
@@ -48,3 +49,7 @@ module.exports = function(config) {
   });
 };
 ```
+
+## Credits
+
+Thanks to @goldibex for adding inline source mpas support.
