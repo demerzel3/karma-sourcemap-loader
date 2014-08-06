@@ -52,4 +52,4 @@ module.exports = function(config) {
 
 ## Credits
 
-Thanks to @goldibex for adding inline source mpas support.
+Thanks to @goldibex for adding inline source maps support.
