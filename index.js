@@ -1,40 +1,56 @@
 var fs = require('fs');
+var path = require('path');
 
 var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
   var log = logger.create('preprocessor.sourcemap');
 
   return function(content, file, done) {
-    var match = content.match(/#\s*sourceMappingURL=(data:application\/json.+)$/m);
-    if (match !== null && match.length == 2) {
-      // inline source map
+    function sourceMapData(data){
+      file.sourceMap = JSON.parse(data);
+      done(content);
+    }
+
+    function inlineMap(inlineData){
       var data;
-      var b64Match = match[1].match(/^data:.+\/(.+);base64,(.*)$/);
+      var b64Match = inlineData.match(/^data:.+\/(.+);base64,(.*)$/);
       if (b64Match !== null && b64Match.length == 3) {
         // base64-encoded JSON string
         log.debug('base64-encoded source map for', file.originalPath);
         var buffer = new Buffer(b64Match[2], 'base64');
-        data = buffer.toString();
+        sourceMapData(buffer.toString());
       } else {
         // straight-up URL-encoded JSON string
         log.debug('raw inline source map for', file.originalPath);
-        data = decodeURIComponent(match[1].slice('data:application/json'.length));
+        sourceMapData(decodeURIComponent(inlineData.slice('data:application/json'.length)));
       }
-      file.sourceMap = JSON.parse(data);
-      done(content);
-    } else {
-      var mapPath = file.path+".map";
+    }
+
+    function fileMap(mapPath){
       fs.exists(mapPath, function(exists) {
         if (!exists) {
           done(content);
           return;
         }
         fs.readFile(mapPath, function(err, data) {
-          if (err) throw err;
+          if (err){ throw err; }
+
           log.debug('external source map exists for', file.originalPath);
-          file.sourceMap = JSON.parse(data);
-          done(content);
+          sourceMapData(data);
         });
       });
+    }
+
+    var match = content.match(/#\s*sourceMappingURL=(.+)$/m);
+    if (match !== null && match.length == 2) {
+      var mapUrl = match[1];
+      if( /^data:application\/json/.test(mapUrl) ){
+        inlineMap(mapUrl);
+      } else {
+        fileMap(path.resolve(path.dirname(file.path), mapUrl));
+      }
+
+    } else {
+      fileMap(file.path + ".map");
     }
   };
 };
