@@ -40,17 +40,15 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
       });
     }
 
-    var match = content.match(/#\s*sourceMappingURL=(.+)$/m);
-    if (match !== null && match.length == 2) {
-      var mapUrl = match[1];
-      if( /^data:application\/json/.test(mapUrl) ){
-        inlineMap(mapUrl);
-      } else {
-        fileMap(path.resolve(path.dirname(file.path), mapUrl));
-      }
-
+    var lastLine = content.split(new RegExp(require('os').EOL)).pop();
+    var match = lastLine.match(/^\/\/#\s*sourceMappingURL=(.+)$/);
+    var mapUrl = match && match[1];
+    if (!mapUrl) {
+      fileMap(file.patch + ".map");
+    } else if (/^data:application\/json/.test(mapUrl)) {
+      inlineMap(mapUrl);
     } else {
-      fileMap(file.path + ".map");
+      fileMap(path.resolve(path.dirname(file.path), mapUrl));
     }
   };
 };
