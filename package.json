@@ -1,6 +1,6 @@
 {
   "name": "karma-sourcemap-loader",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Karma plugin that locates and loads existing javascript source map files.",
   "main": "index.js",
   "repository": {
