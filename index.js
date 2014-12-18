@@ -44,7 +44,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     var match = lastLine.match(/^\/\/#\s*sourceMappingURL=(.+)$/);
     var mapUrl = match && match[1];
     if (!mapUrl) {
-      fileMap(file.patch + ".map");
+      fileMap(file.path + ".map");
     } else if (/^data:application\/json/.test(mapUrl)) {
       inlineMap(mapUrl);
     } else {
