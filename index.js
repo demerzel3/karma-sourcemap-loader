@@ -1,8 +1,21 @@
 var fs = require('fs');
 var path = require('path');
 
-var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
-  var log = logger.create('preprocessor.sourcemap');
+var createPattern = function(path) {
+  return {pattern: path, included: true, served: true, watched: false};
+};
+
+var setupStackTraceSupport = function(files) {
+  var sourceMapSupportPath = path.dirname(require.resolve('source-map-support')) + '/browser-source-map-support.js';
+
+  // This is the reverse order of how this is loaded on the page.
+  files.unshift(createPattern(__dirname + '/lib/init.js'));
+  files.unshift(createPattern(sourceMapSupportPath));
+};
+
+var createSourceMapLocatorPreprocessor = function(args, logger, helper, files) {
+  var log = logger.create('framework.sourcemap');
+  setupStackTraceSupport(files);
 
   return function(content, file, done) {
     function sourceMapData(data){
@@ -53,9 +66,9 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'helper'];
+createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'helper', 'config.files'];
 
 // PUBLISH DI MODULE
 module.exports = {
-  'preprocessor:sourcemap': ['factory', createSourceMapLocatorPreprocessor]
+  'framework:sourcemap': ['factory', createSourceMapLocatorPreprocessor]
 };
