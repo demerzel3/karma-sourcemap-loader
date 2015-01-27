@@ -40,7 +40,12 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
       });
     }
 
-    var lastLine = content.split(new RegExp(require('os').EOL)).pop();
+    var lines = content.split(new RegExp(require('os').EOL));
+    var lastLine = lines.pop();
+    while (new RegExp("^\\s*$").test(lastLine)) {
+      lastLine = lines.pop();
+    }
+
     var match = lastLine.match(/^\/\/#\s*sourceMappingURL=(.+)$/);
     var mapUrl = match && match[1];
     if (!mapUrl) {
