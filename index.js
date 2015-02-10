@@ -40,7 +40,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
       });
     }
 
-    var lines = content.split(new RegExp(require('os').EOL));
+    var lines = content.split(/\n/);
     var lastLine = lines.pop();
     while (new RegExp("^\\s*$").test(lastLine)) {
       lastLine = lines.pop();
