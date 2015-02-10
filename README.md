@@ -43,9 +43,7 @@ The code below shows a sample configuration of the preprocessor.
 // karma.conf.js
 module.exports = function(config) {
   config.set({
-    preprocessors: {
-      '**/*.js': ['sourcemap']
-    }
+    frameworks: ['sourcemap']
   });
 };
 ```

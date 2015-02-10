@@ -17,5 +17,8 @@
     "name": "Gabriele Genta",
     "email": "gabriele.genta@gmail.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "source-map-support": "^0.2.8"
+  }
 }
