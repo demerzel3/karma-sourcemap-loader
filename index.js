@@ -11,17 +11,15 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     }
 
     function inlineMap(inlineData){
-      var data;
-      var b64Match = inlineData.match(/^data:.+\/(.+);base64,(.*)$/);
-      if (b64Match !== null && b64Match.length == 3) {
+      if (/^;base64,/.test(inlineData)) {
         // base64-encoded JSON string
         log.debug('base64-encoded source map for', file.originalPath);
-        var buffer = new Buffer(b64Match[2], 'base64');
+        var buffer = new Buffer(inlineData.slice(';base64,'.length), 'base64');
         sourceMapData(buffer.toString());
       } else {
         // straight-up URL-encoded JSON string
         log.debug('raw inline source map for', file.originalPath);
-        sourceMapData(decodeURIComponent(inlineData.slice('data:application/json'.length)));
+        sourceMapData(decodeURIComponent(inlineData));
       }
     }
 
@@ -51,7 +49,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     if (!mapUrl) {
       fileMap(file.path + ".map");
     } else if (/^data:application\/json/.test(mapUrl)) {
-      inlineMap(mapUrl);
+      inlineMap(mapUrl.slice('data:application/json'.length));
     } else {
       fileMap(path.resolve(path.dirname(file.path), mapUrl));
     }
