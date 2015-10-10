@@ -3,6 +3,9 @@
   "version": "0.3.6",
   "description": "Karma plugin that locates and loads existing javascript source map files.",
   "main": "index.js",
+  "files": [
+    "index.js"
+  ],
   "repository": {
     "type": "git",
     "url": "git@github.com:demerzel3/karma-sourcemap-loader.git"
