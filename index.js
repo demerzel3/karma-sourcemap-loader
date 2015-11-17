@@ -11,10 +11,10 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     }
 
     function inlineMap(inlineData){
-      if (/^;base64,/.test(inlineData)) {
+      if (/;base64,/.test(inlineData)) {
         // base64-encoded JSON string
         log.debug('base64-encoded source map for', file.originalPath);
-        var buffer = new Buffer(inlineData.slice(';base64,'.length), 'base64');
+        var buffer = new Buffer(inlineData.split(';base64,')[1], 'base64');
         sourceMapData(buffer.toString());
       } else {
         // straight-up URL-encoded JSON string
