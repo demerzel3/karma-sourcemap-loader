@@ -11,11 +11,22 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     }
 
     function inlineMap(inlineData){
+
+      var charset = 'utf-8';
+      if (/^;charset=([^;]+);/.test(inlineData)) {
+        var matches = inlineData.match(/^;charset=([^;]+);/)
+
+        if (matches.length === 2) {
+          charset = matches[1];
+          inlineData = inlineData.slice(matches[0].length -1);
+        }
+      }
+
       if (/^;base64,/.test(inlineData)) {
         // base64-encoded JSON string
         log.debug('base64-encoded source map for', file.originalPath);
         var buffer = new Buffer(inlineData.slice(';base64,'.length), 'base64');
-        sourceMapData(buffer.toString());
+        sourceMapData(buffer.toString(charset));
       } else {
         // straight-up URL-encoded JSON string
         log.debug('raw inline source map for', file.originalPath);
