@@ -3,6 +3,7 @@ var path = require('path');
 
 var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
   var log = logger.create('preprocessor.sourcemap');
+  var charsetRegex = /^;charset=([^;]+);/;
 
   return function(content, file, done) {
     function sourceMapData(data){
@@ -13,8 +14,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     function inlineMap(inlineData){
 
       var charset = 'utf-8';
-      var charsetRegex = /^;charset=([^;]+);/;
-
+      
       if (charsetRegex.test(inlineData)) {
         var matches = inlineData.match(charsetRegex);
 
