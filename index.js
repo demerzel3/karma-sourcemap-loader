@@ -1,7 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 
-var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
+var sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
+
+var createSourceMapLocatorPreprocessor = function(args, logger) {
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
 
@@ -53,12 +55,16 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
 
     var lines = content.split(/\n/);
     var lastLine = lines.pop();
-    while (new RegExp("^\\s*$").test(lastLine)) {
+    while (/^\s*$/.test(lastLine)) {
       lastLine = lines.pop();
     }
 
-    var match = /^\/\/#\s*sourceMappingURL=(.+)$/.exec(lastLine);
-    var mapUrl = match && match[1];
+    var mapUrl;
+
+    if (sourcemapUrlRegeExp.test(lastLine)) {
+      mapUrl = lastLine.replace(sourcemapUrlRegeExp, '');
+    }
+
     if (!mapUrl) {
       fileMap(file.path + ".map");
     } else if (/^data:application\/json/.test(mapUrl)) {
@@ -69,7 +75,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'helper'];
+createSourceMapLocatorPreprocessor.$inject = ['args', 'logger'];
 
 // PUBLISH DI MODULE
 module.exports = {
