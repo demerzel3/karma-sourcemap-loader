@@ -20,5 +20,8 @@
     "name": "Gabriele Genta",
     "email": "gabriele.genta@gmail.com"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "graceful-fs": "^4.1.2"
+  }
 }
