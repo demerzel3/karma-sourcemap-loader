@@ -13,8 +13,10 @@ var createSourceMapLocatorPreprocessor = function(args, logger, helper) {
     function inlineMap(inlineData){
 
       var charset = 'utf-8';
-      if (/^;charset=([^;]+);/.test(inlineData)) {
-        var matches = inlineData.match(/^;charset=([^;]+);/)
+      var charsetRegex = /^;charset=([^;]+);/;
+
+      if (charsetRegex.test(inlineData)) {
+        var matches = inlineData.match(charsetRegex);
 
         if (matches.length === 2) {
           charset = matches[1];
