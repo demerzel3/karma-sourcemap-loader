@@ -3,13 +3,24 @@ var path = require('path');
 
 var sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
 
-var createSourceMapLocatorPreprocessor = function(args, logger) {
+var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
 
   return function(content, file, done) {
+    function resolveLocalPath(path) {
+      return path
+          .replace(/webpack:\/\//, process.cwd())
+          .replace(/\?[^:]*/, '');
+    }
+
     function sourceMapData(data){
       file.sourceMap = JSON.parse(data);
+      if (config && config.useLocalPaths) {
+          file.sourceMap.sources = file.sourceMap.sources.map(function (path) {
+              return resolveLocalPath(path);
+          });
+      }
       done(content);
     }
 
@@ -75,7 +86,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger'];
+createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'config.sourcemap'];
 
 // PUBLISH DI MODULE
 module.exports = {

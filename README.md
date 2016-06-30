@@ -45,7 +45,16 @@ module.exports = function(config) {
   config.set({
     preprocessors: {
       '**/*.js': ['sourcemap']
+    },
+    sourcemap: {
+      useLocalPaths: false
     }
   });
 };
 ```
+
+### Configuration Parameters
+
+* useLocalPaths - bool - converts webpack sourcemap paths to the local path of the 
+original source.  This is useful when running tests from the commandline so that the
+original source can be reached simply by clicking the path in your terminal.
