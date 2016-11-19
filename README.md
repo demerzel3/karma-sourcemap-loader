@@ -4,6 +4,8 @@
 
 ## Why
 
+This is a fork to provide the 'useSourceRoot' option and make it available via npm.
+
 When you use karma not in isolation but as part of a build process (e.g. using grunt
 or gulp) it is often the case that the compilation/transpilation is done on a previous
 step of the process and not handled by karma preprocessors. In these cases source maps
