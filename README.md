@@ -45,7 +45,14 @@ module.exports = function(config) {
   config.set({
     preprocessors: {
       '**/*.js': ['sourcemap']
+    },
+    sourcemap: {
+      useSourceRoot: '/'
     }
   });
 };
 ```
+
+### Configuration Parameters
+
+* useSourceRoot - string - overrides the sourceRoot in the source map with a custom value.

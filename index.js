@@ -3,13 +3,17 @@ var path = require('path');
 
 var sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
 
-var createSourceMapLocatorPreprocessor = function(args, logger) {
+var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
 
   return function(content, file, done) {
     function sourceMapData(data){
-      file.sourceMap = JSON.parse(data);
+      var mapData = JSON.parse(data);
+      if (config && config.useSourceRoot) {
+          mapData.sourceRoot = config.useSourceRoot;
+      }
+      file.sourceMap = mapData;
       done(content);
     }
 
@@ -75,9 +79,10 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger'];
+createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'config.sourcemap'];
 
 // PUBLISH DI MODULE
 module.exports = {
   'preprocessor:sourcemap': ['factory', createSourceMapLocatorPreprocessor]
 };
+
