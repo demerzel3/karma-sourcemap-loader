@@ -1,4 +1,4 @@
-# karma-sourcemap-loader
+# karma-sourcemap-loader-srcroot
 
 > Preprocessor that locates and loads existing source maps.
 
@@ -22,18 +22,18 @@ Hello.js.map.
 
 ## Installation
 
-Just add `karma-sourcemap-loader` as a devDependency in your `package.json`.
+Just add `karma-sourcemap-loader-srcroot` as a devDependency in your `package.json`.
 ```json
 {
   "devDependencies": {
-    "karma-sourcemap-loader": "~0.3"
+    "karma-sourcemap-loader-srcroot": "~0.3"
   }
 }
 ```
 
 Or issue the following command:
 ```bash
-npm install karma-sourcemap-loader --save-dev
+npm install karma-sourcemap-loader-srcroot --save-dev
 ```
 
 ## Configuration
