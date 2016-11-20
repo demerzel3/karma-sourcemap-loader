@@ -1,6 +1,6 @@
 {
   "name": "karma-sourcemap-loader-srcroot",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "description": "Karma plugin that locates and loads existing javascript source map files.",
   "main": "index.js",
   "files": [

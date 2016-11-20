@@ -4,7 +4,7 @@
 
 ## Why
 
-This is a fork to provide the 'useSourceRoot' option and make it available via npm.
+This is a fork to provide the 'transform' option and make it available via npm.
 
 When you use karma not in isolation but as part of a build process (e.g. using grunt
 or gulp) it is often the case that the compilation/transpilation is done on a previous
@@ -49,7 +49,9 @@ module.exports = function(config) {
       '**/*.js': ['sourcemap']
     },
     sourcemap: {
-      useSourceRoot: '/'
+      transform: function(mapData) {
+        mapData.sourceRoot = '/';
+      }
     }
   });
 };
@@ -57,4 +59,4 @@ module.exports = function(config) {
 
 ### Configuration Parameters
 
-* useSourceRoot - string - overrides the sourceRoot in the source map with a custom value.
+* transform - function - allows transforming the map data prior to loading.

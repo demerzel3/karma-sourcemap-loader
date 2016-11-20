@@ -10,8 +10,8 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   return function(content, file, done) {
     function sourceMapData(data){
       var mapData = JSON.parse(data);
-      if (config && config.useSourceRoot) {
-          mapData.sourceRoot = config.useSourceRoot;
+      if (config && config.transform) {
+          config.transform(mapData);
       }
       file.sourceMap = mapData;
       done(content);
