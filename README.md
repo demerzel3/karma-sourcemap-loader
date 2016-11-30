@@ -36,6 +36,11 @@ Or issue the following command:
 npm install karma-sourcemap-loader --save-dev
 ```
 
+Don't forget to register this as a plugin with Karma:
+```js
+      plugins: ['karma-sourcemap-loader'],
+```
+
 ## Configuration
 
 The code below shows a sample configuration of the preprocessor.
