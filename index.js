@@ -9,7 +9,11 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
 
   return function(content, file, done) {
     function sourceMapData(data){
-      file.sourceMap = JSON.parse(data);
+      try {
+        file.sourceMap = JSON.parse(data);
+      } catch (e) {
+        log.debug('parse source map data failed', file.originalPath);
+      }
       done(content);
     }
 
