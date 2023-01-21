@@ -9,6 +9,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   var remapPrefixes = options.remapPrefixes;
   var remapSource = options.remapSource;
   var useSourceRoot = options.useSourceRoot;
+  var onlyWithURL = options.onlyWithURL;
   var strict = options.strict;
   var needsUpdate = remapPrefixes || remapSource || useSourceRoot;
 
@@ -228,7 +229,11 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
     }
 
     if (!mapUrl) {
-      fileMap(file.path + ".map", true);
+      if (onlyWithURL) {
+        done(content);
+      } else {
+        fileMap(file.path + ".map", true);
+      }
     } else if (/^data:application\/json/.test(mapUrl)) {
       inlineMap(mapUrl.slice('data:application/json'.length));
     } else {

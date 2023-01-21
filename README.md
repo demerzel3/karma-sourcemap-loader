@@ -133,6 +133,23 @@ module.exports = function(config) {
 };
 ```
 
+The code below shows a sample configuration of the preprocessor with source map loading only for files with the `sourceMappingURL` set. The default behaviour is trying to load source maps for all JavaScript files, also those without the `sourceMappingURL` set.
+
+```js
+// karma.conf.js
+module.exports = function(config) {
+  config.set({
+    plugins: ['karma-sourcemap-loader'],
+    preprocessors: {
+      '**/*.js': ['sourcemap']
+    },
+    sourceMapLoader: {
+      onlyWithURL: true
+    }
+  });
+};
+```
+
 The code below shows a sample configuration of the preprocessor with a strict error checking. A missing or an invalid source map will cause the test run fail.
 
 ```js
