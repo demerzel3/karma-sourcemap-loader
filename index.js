@@ -3,13 +3,85 @@ var path = require('path');
 
 var sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
 
-var createSourceMapLocatorPreprocessor = function(args, logger) {
+var createSourceMapLocatorPreprocessor = function(args, logger, config) {
+  /* c8 ignore next */
+  var options = config && config.sourceMapLoader || {};
+  var remapPrefixes = options.remapPrefixes;
+  var remapSource = options.remapSource;
+
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
 
   return function(content, file, done) {
+    function remapSources(sources) {
+      var all = sources.length;
+      var remapped = 0;
+      var remappedPrefixes = {};
+      var i, source, remappedSource;
+
+      // Replaces source path prefixes using a key:value map
+      function handlePrefixes() {
+        var sourcePrefix, targetPrefix, target;
+        for (sourcePrefix in remapPrefixes) {
+          targetPrefix = remapPrefixes[sourcePrefix];
+          if (source.startsWith(sourcePrefix)) {
+            target = targetPrefix + source.substring(sourcePrefix.length);
+            sources[i] = target;
+            ++remapped;
+            // Log only one remapping as an example for each prefix to prevent
+            // flood of messages on the console
+            if (!remappedPrefixes[sourcePrefix]) {
+              remappedPrefixes[sourcePrefix] = true;
+              log.debug(' ', source, '>>', target);
+            }
+            return true;
+          }
+        }
+      }
+
+      // Replaces source paths using a custom function
+      function handleMapper() {
+        var target = remapSource(source);
+        // Remapping is considered happenned only if the handler returns
+        // a non-empty path different from the existing one
+        if (target && target !== source) {
+          sources[i] = target;
+          ++remapped;
+          // Log only one remapping as an example to prevent flooding the console
+          if (!remappedSource) {
+            remappedSource = true;
+            log.debug(' ', source, '>>', target);
+          }
+          return true;
+        }
+      }
+
+      for (i = 0; i < all; ++i) {
+        // Normalise Windows paths to use only slashes as a separator
+        source = sources[i].replaceAll('\\', '/');
+        if (remapPrefixes) {
+          // One remapping is enough; if a prefix was replaced, do not let
+          // the handler below check the source path any more
+          if (handlePrefixes()) continue;
+        }
+        if (remapSource) {
+          handleMapper()
+        }
+      }
+
+      if (remapped) {
+        log.debug('  ...');
+        log.debug(' ', remapped, 'sources from', all, 'were remapped');
+      }
+    }
+
     function sourceMapData(data){
-      file.sourceMap = JSON.parse(data);
+      var sourceMap = JSON.parse(data);
+      // Preform the remapping only if there is a configuration for it
+      if (remapPrefixes || remapSource) {
+        remapSources(sourceMap.sources);
+      }
+      file.sourceMap = sourceMap;
       done(content);
     }
 
@@ -77,7 +149,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger'];
+createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'config'];
 
 // PUBLISH DI MODULE
 module.exports = {
