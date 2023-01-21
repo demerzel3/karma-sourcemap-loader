@@ -20,6 +20,38 @@ describe('the preprocessor', () => {
 `);
   });
 
+  it('remaps sources in a raw inline source map', async () => {
+    const content = await fetchFile('shared-raw.js');
+    expect(content).toBe(`var shared = (function () {
+  'use strict';
+
+  function shared() {
+    console.log();
+  }
+
+  return shared;
+
+})();
+//# sourceMappingURL=data:application/json,%7B%22version%22%3A3%2C%22file%22%3A%22shared.js%22%2C%22sources%22%3A%5B%22%2Ftest%2Fshared.js%22%5D%2C%22sourcesContent%22%3A%5B%22export%20default%20function%20shared()%20%7B%5Cn%20%20console.log()%3B%5Cn%7D%5Cn%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22%3B%3B%3BEAAe%2CSAAS%2CMAAM%2CGAAG%3BEACjC%2CEAAE%2COAAO%2CCAAC%2CGAAG%2CEAAE%2CCAAC%3BEAChB%3B%3B%3B%3B%3B%3B%3B%3B%22%7D
+`);
+  });
+
+  it('leaves an invalid inline source map intact', async () => {
+    const code = await fetchFile('shared-invalid.js');
+    expect(code).toBe(`var shared = (function () {
+  'use strict';
+
+  function shared() {
+    console.log();
+  }
+
+  return shared;
+
+})();
+//# sourceMappingURL=data:application/json;%7B%22version%22%3A3%2C%22file%22%3A%22shared.js%22%2C%22sources%22%3A%5B%22%2Ftest%2Fshared.js%22%5D%2C%22sourcesContent%22%3A%5B%22export%20default%20function%20shared()%20%7B%5Cn%20%20console.log()%3B%5Cn%7D%5Cn%22%5D%2C%22names%22%3A%5B%5D%2C%22mappings%22%3A%22%3B%3B%3BEAAe%2CSAAS%2CMAAM%2CGAAG%3BEACjC%2CEAAE%2COAAO%2CCAAC%2CGAAG%2CEAAE%2CCAAC%3BEAChB%3B%3B%3B%3B%3B%3B%3B%3B%22%7D
+`);
+  });
+
   it('leaves a valid external source map reference intact', async () => {
     const code = await fetchFile('bundle.js');
     expect(code).toBe(`(function () {
@@ -33,6 +65,22 @@ describe('the preprocessor', () => {
 
 })();
 //# sourceMappingURL=bundle.js.map
+`);
+  });
+
+  it('leaves an invalid external source map reference intact', async () => {
+    const code = await fetchFile('bundle-missingmap.js');
+    expect(code).toBe(`(function () {
+  'use strict';
+
+  function shared() {
+    console.log();
+  }
+
+  shared();
+
+})();
+//# sourceMappingURL=bundle.js.map.none
 `);
   });
 

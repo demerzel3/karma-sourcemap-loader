@@ -104,11 +104,18 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
         log.debug('base64-encoded source map for', file.originalPath);
         var buffer = Buffer.from(inlineData.slice(';base64,'.length), 'base64');
         sourceMapData(buffer.toString(charset));
-      /* c8 ignore next 5 */
-      } else {
+      } else if (inlineData.startsWith(',')) {
         // straight-up URL-encoded JSON string
         log.debug('raw inline source map for', file.originalPath);
-        sourceMapData(decodeURIComponent(inlineData));
+        sourceMapData(decodeURIComponent(inlineData.slice(1)));
+      } else {
+        /* c8 ignore next 2 */
+        if (strict) {
+          done(new Error('invalid source map in ' + file.originalPath));
+        } else {
+          log.warn('invalid source map in', file.originalPath);
+          done(content)
+        }
       }
     }
 

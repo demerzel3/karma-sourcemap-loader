@@ -32,10 +32,24 @@ module.exports = [
     input: 'src/shared.js',
     output: {
       file: 'out/shared.js',
-      format: 'iife',
+      format: 'iife', // Karma cannot load ES modules
       name: 'shared',
       sourcemap: 'inline',
-      sourcemapPathTransform
+      sourcemapPathTransform,
+      plugins: [{
+        async writeBundle() {
+          const shared = await readFile('out/shared.js', 'utf8');
+          const map = /\r?\n\/\/#\s*sourceMappingURL=data:application\/json;charset=utf-8;base64,(.+)$/m.exec(shared)[1];
+          // Create a raw (URI-encoded) source map
+          const raw = shared.replace(/(\r?\n\/\/#\s*sourceMappingURL=data:application\/json).+$/m,
+            `$1,${encodeURIComponent(Buffer.from(map, 'base64').toString())}`);
+          await writeFile('out/shared-raw.js', raw);
+          // Make the source mapping URL invalid by replacing `,` with `;`
+          const invalid = shared.replace(/(\r?\n\/\/#\s*sourceMappingURL=data:application\/json).+$/m,
+            `$1;${encodeURIComponent(Buffer.from(map, 'base64').toString())}`);
+          await writeFile('out/shared-invalid.js', invalid);
+        }
+      }]
     }
   },
 ];
