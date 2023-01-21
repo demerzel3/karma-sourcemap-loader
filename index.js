@@ -112,9 +112,18 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
       }
     }
 
-    function fileMap(mapPath){
+    function fileMap(mapPath, optional) {
       fs.exists(mapPath, function(exists) {
         if (!exists) {
+          if (!optional) {
+            /* c8 ignore next 3 */
+            if (strict) {
+              done(new Error('missing external source map for ' + file.originalPath));
+              return;
+            } else {
+              log.warn('missing external source map for', file.originalPath);
+            }
+          }
           done(content);
           return;
         }
@@ -168,11 +177,11 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
     }
 
     if (!mapUrl) {
-      fileMap(file.path + ".map");
+      fileMap(file.path + ".map", true);
     } else if (/^data:application\/json/.test(mapUrl)) {
       inlineMap(mapUrl.slice('data:application/json'.length));
     } else {
-      fileMap(path.resolve(path.dirname(file.path), mapUrl));
+      fileMap(path.resolve(path.dirname(file.path), mapUrl), false);
     }
   };
 };
