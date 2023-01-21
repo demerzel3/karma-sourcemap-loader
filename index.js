@@ -31,6 +31,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
         log.debug('base64-encoded source map for', file.originalPath);
         var buffer = Buffer.from(inlineData.slice(';base64,'.length), 'base64');
         sourceMapData(buffer.toString(charset));
+      /* c8 ignore next 5 */
       } else {
         // straight-up URL-encoded JSON string
         log.debug('raw inline source map for', file.originalPath);
@@ -45,6 +46,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger) {
           return;
         }
         fs.readFile(mapPath, function(err, data) {
+          /* c8 ignore next */
           if (err){ throw err; }
 
           log.debug('external source map exists for', file.originalPath);
