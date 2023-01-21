@@ -76,13 +76,34 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
       }
     }
 
-    function sourceMapData(data){
-      var sourceMap = JSON.parse(data);
-      // Preform the remapping only if there is a configuration for it
-      if (remapPrefixes || remapSource) {
-        remapSources(sourceMap.sources);
+    // Parses a string with source map as JSON and handles errors
+    function parseMap(data) {
+      try {
+        return JSON.parse(data);
+      } catch (err) {
+        /* c8 ignore next 5 */
+        if (strict) {
+          done(new Error('malformed source map for', file.originalPath + '\nError: ' + err.message));
+          // Returning `false` will make the caller abort immediately
+          return false;
+        }
+        log.warn('malformed source map for', file.originalPath);
+        log.warn('Error:', err.message);
       }
-      file.sourceMap = sourceMap;
+    }
+
+    function sourceMapData(data){
+      var sourceMap = parseMap(data);
+      if (sourceMap) {
+        // Perform the remapping only if there is a configuration for it
+        if (remapPrefixes || remapSource) {
+          remapSources(sourceMap.sources);
+        }
+        file.sourceMap = sourceMap;
+      /* c8 ignore next 3 */
+      } else if (sourceMap === false) {
+        return;
+      }
       done(content);
     }
 
@@ -158,11 +179,16 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
     function convertMap() {
       var sourceMap;
       log.debug('processing source map', file.originalPath);
-      // Preform the remapping only if there is a configuration for it
+      // Perform the remapping only if there is a configuration for it
       if (remapPrefixes || remapSource) {
-        sourceMap = JSON.parse(content);
-        remapSources(sourceMap.sources);
-        content = JSON.stringify(sourceMap);
+        var sourceMap = parseMap(content);
+        if (sourceMap) {
+          remapSources(sourceMap.sources);
+          content = JSON.stringify(sourceMap);
+        /* c8 ignore next 3 */
+        } else if (sourceMap === false) {
+          return;
+        }
       }
       done(content);
     }

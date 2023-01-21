@@ -24,6 +24,10 @@ module.exports = [
           // Set the source mapping URL to a missing file - append ".none" to it
           const missingmap = bundle.replace(/(\r?\n\/\/#\s*sourceMappingURL=.+)$/m, '$1.none');
           await writeFile('out/bundle-missingmap.js', missingmap);
+          // Corrupt the source map content
+          const corruptedmap = bundle.replace(/(\r?\n\/\/#\s*sourceMappingURL=bundle).+$/m, '$1-corruptedmap.js.map');
+          await writeFile('out/bundle-corruptedmap.js', corruptedmap);
+          await writeFile('out/bundle-corruptedmap.js.map', '{');
         }
       }]
     }
@@ -48,6 +52,10 @@ module.exports = [
           const invalid = shared.replace(/(\r?\n\/\/#\s*sourceMappingURL=data:application\/json).+$/m,
             `$1;${encodeURIComponent(Buffer.from(map, 'base64').toString())}`);
           await writeFile('out/shared-invalid.js', invalid);
+          // Corrupt the source map content
+          const corrupted = shared.replace(/(\r?\n\/\/#\s*sourceMappingURL=data:application\/json).+$/m,
+            '$1;charset=utf-8;base64,ewo=');
+          await writeFile('out/shared-corrupted.js', corrupted);
         }
       }]
     }
