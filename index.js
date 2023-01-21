@@ -8,6 +8,7 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   var options = config && config.sourceMapLoader || {};
   var remapPrefixes = options.remapPrefixes;
   var remapSource = options.remapSource;
+  var strict = options.strict;
 
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
@@ -117,9 +118,19 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
           done(content);
           return;
         }
+
         fs.readFile(mapPath, function(err, data) {
-          /* c8 ignore next */
-          if (err){ throw err; }
+          /* c8 ignore next 10 */
+          if (err) {
+            if (strict) {
+              done(new Error('reading external source map failed for ' + file.originalPath + '\n' + err));
+            } else {
+              log.warn('reading external source map failed for', file.originalPath);
+              log.warn(err);
+              done(content);
+            }
+            return;
+          }
 
           log.debug('external source map exists for', file.originalPath);
           sourceMapData(data);
