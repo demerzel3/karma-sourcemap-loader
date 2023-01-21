@@ -9,11 +9,15 @@ module.exports = function(config) {
 
     files: [
       { pattern: 'test.js', nocache: true },
-      { pattern: 'out/*.js' }
+      { pattern: 'out/*.js' },
+      // The type `html` is a workaround for JavaScript parsing errors;
+      // the default type is `js` and there is no type for JSON files
+      { pattern: 'out/*.map', type: 'html' }
     ],
 
     preprocessors: {
-      'out/*.js': ['sourcemap']
+      'out/*.js': ['sourcemap'],
+      'out/*.map': ['sourcemap']
     },
 
     reporters: ['brief'],

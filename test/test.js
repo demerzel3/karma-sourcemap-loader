@@ -50,4 +50,11 @@ describe('the preprocessor', () => {
 })();
 `);
   });
+
+  it('remaps sources in an external source map', async () => {
+    const map = JSON.parse(await fetchFile('bundle.js.map'));
+    for (const source of map.sources) {
+      expect(source).toContain('../src/');
+    }
+  });
 });

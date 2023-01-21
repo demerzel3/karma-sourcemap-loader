@@ -138,6 +138,23 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
       });
     }
 
+    // Remap source paths in a directly served source map
+    function convertMap() {
+      var sourceMap;
+      log.debug('processing source map', file.originalPath);
+      // Preform the remapping only if there is a configuration for it
+      if (remapPrefixes || remapSource) {
+        sourceMap = JSON.parse(content);
+        remapSources(sourceMap.sources);
+        content = JSON.stringify(sourceMap);
+      }
+      done(content);
+    }
+
+    if (file.path.endsWith('.map')) {
+      return convertMap();
+    }
+
     var lines = content.split(/\n/);
     var lastLine = lines.pop();
     while (/^\s*$/.test(lastLine)) {
