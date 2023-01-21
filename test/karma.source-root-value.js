@@ -1,9 +1,9 @@
 const sharedConfig = require('./karma.shared');
 
 module.exports = function (config) {
-  config.set(Object.assign({}, sharedConfig(config, 'test-sources'), {
+  config.set(Object.assign({}, sharedConfig(config, 'test-source-root'), {
     sourceMapLoader: {
-      remapPrefixes: { '/test/': '../src/' }
+      useSourceRoot: '/sources'
     }
   }));
 };

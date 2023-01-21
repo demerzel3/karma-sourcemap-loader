@@ -3,7 +3,7 @@ function fetchFile(name) {
   return fetch(url).then(response => response.text());
 }
 
-describe('the preprocessor', () => {
+describe('remap source prefixes', () => {
   it('remaps sources in a base64 inline source map', async () => {
     const content = await fetchFile('shared.js');
     expect(content).toBe(`var shared = (function () {

@@ -97,6 +97,42 @@ module.exports = function(config) {
 };
 ```
 
+The code below shows a sample configuration of the preprocessor with changing the `sourceRoot` property to a custom value, which will change the location where the debugger should locate the source files.
+
+```js
+// karma.conf.js
+module.exports = function(config) {
+  config.set({
+    plugins: ['karma-sourcemap-loader'],
+    preprocessors: {
+      '**/*.js': ['sourcemap']
+    },
+    sourceMapLoader: {
+      useSourceRoot: '/sources'
+    }
+  });
+};
+```
+
+The code below shows a sample configuration of the preprocessor with changing the `sourceRoot` property using a custom function to be able to compute the value depending on the path to the bundle. The `file` argument is the Karma file object `{ path, originalPath }` for the bundle.
+
+```js
+// karma.conf.js
+module.exports = function(config) {
+  config.set({
+    plugins: ['karma-sourcemap-loader'],
+    preprocessors: {
+      '**/*.js': ['sourcemap']
+    },
+    sourceMapLoader: {
+      useSourceRoot(file) {
+        return '/sources';
+      }
+    }
+  });
+};
+```
+
 The code below shows a sample configuration of the preprocessor with a strict error checking. A missing or an invalid source map will cause the test run fail.
 
 ```js

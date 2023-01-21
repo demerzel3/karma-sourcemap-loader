@@ -8,7 +8,9 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
   var options = config && config.sourceMapLoader || {};
   var remapPrefixes = options.remapPrefixes;
   var remapSource = options.remapSource;
+  var useSourceRoot = options.useSourceRoot;
   var strict = options.strict;
+  var needsUpdate = remapPrefixes || remapSource || useSourceRoot;
 
   var log = logger.create('preprocessor.sourcemap');
   var charsetRegex = /^;charset=([^;]+);/;
@@ -92,12 +94,28 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
       }
     }
 
+    // Sets the sourceRoot property to a fixed or computed value
+    function setSourceRoot(sourceMap) {
+      sourceMap.sourceRoot = typeof useSourceRoot === 'function' ?
+        useSourceRoot(file) : useSourceRoot;
+    }
+
+    // Performs configured updates of the source map content
+    function updateSourceMap(sourceMap) {
+      if (remapPrefixes || remapSource) {
+        remapSources(sourceMap.sources);
+      }
+      if (useSourceRoot) {
+        setSourceRoot(sourceMap);
+      }
+    }
+
     function sourceMapData(data){
       var sourceMap = parseMap(data);
       if (sourceMap) {
         // Perform the remapping only if there is a configuration for it
-        if (remapPrefixes || remapSource) {
-          remapSources(sourceMap.sources);
+        if (needsUpdate) {
+          updateSourceMap(sourceMap);
         }
         file.sourceMap = sourceMap;
       /* c8 ignore next 3 */
@@ -178,12 +196,12 @@ var createSourceMapLocatorPreprocessor = function(args, logger, config) {
     // Remap source paths in a directly served source map
     function convertMap() {
       var sourceMap;
-      log.debug('processing source map', file.originalPath);
       // Perform the remapping only if there is a configuration for it
-      if (remapPrefixes || remapSource) {
-        var sourceMap = parseMap(content);
+      if (needsUpdate) {
+        log.debug('processing source map', file.originalPath);
+        sourceMap = parseMap(content);
         if (sourceMap) {
-          remapSources(sourceMap.sources);
+          updateSourceMap(sourceMap);
           content = JSON.stringify(sourceMap);
         /* c8 ignore next 3 */
         } else if (sourceMap === false) {
