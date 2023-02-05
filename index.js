@@ -20,7 +20,7 @@ function createSourceMapLocatorPreprocessor(logger, config) {
   const needsUpdate = remapPrefixes || remapSource || useSourceRoot;
   const log = logger.create('preprocessor.sourcemap');
 
-  return function (content, file, done) {
+  return function karmaSourcemapLoaderPreprocessor(content, file, done) {
     /**
      * @param {string[]} sources
      */
