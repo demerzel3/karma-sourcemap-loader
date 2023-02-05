@@ -5,7 +5,7 @@ const path = require('path');
 const SOURCEMAP_URL_REGEX = /^\/\/#\s*sourceMappingURL=/;
 const CHARSET_REGEX = /^;charset=([^;]+);/;
 
-const createSourceMapLocatorPreprocessor = function (logger, config) {
+function createSourceMapLocatorPreprocessor(logger, config) {
   const options = (config && config.sourceMapLoader) || {};
   const remapPrefixes = options.remapPrefixes;
   const remapSource = options.remapSource;
@@ -238,7 +238,7 @@ const createSourceMapLocatorPreprocessor = function (logger, config) {
       fileMap(path.resolve(path.dirname(file.path), mapUrl), false);
     }
   };
-};
+}
 
 createSourceMapLocatorPreprocessor.$inject = ['logger', 'config'];
 
