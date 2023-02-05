@@ -20,89 +20,89 @@ function createSourceMapLocatorPreprocessor(logger, config) {
   const needsUpdate = remapPrefixes || remapSource || useSourceRoot;
   const log = logger.create('preprocessor.sourcemap');
 
-  return function karmaSourcemapLoaderPreprocessor(content, file, done) {
+  /**
+   * @param {string[]} sources
+   */
+  function remapSources(sources) {
+    const all = sources.length;
+    let remapped = 0;
+    /** @type {Record<string, boolean>} */
+    const remappedPrefixes = {};
+    let remappedSource = false;
+
     /**
-     * @param {string[]} sources
+     * Replaces source path prefixes using a key:value map
+     * @param {string} source
+     * @returns {string | undefined}
      */
-    function remapSources(sources) {
-      const all = sources.length;
-      let remapped = 0;
-      /** @type {Record<string, boolean>} */
-      const remappedPrefixes = {};
-      let remappedSource = false;
-
-      /**
-       * Replaces source path prefixes using a key:value map
-       * @param {string} source
-       * @returns {string | undefined}
-       */
-      function handlePrefixes(source) {
-        if (!remapPrefixes) {
-          return undefined;
-        }
-
-        let sourcePrefix, targetPrefix, target;
-        for (sourcePrefix in remapPrefixes) {
-          targetPrefix = remapPrefixes[sourcePrefix];
-          if (source.startsWith(sourcePrefix)) {
-            target = targetPrefix + source.substring(sourcePrefix.length);
-            ++remapped;
-            // Log only one remapping as an example for each prefix to prevent
-            // flood of messages on the console
-            if (!remappedPrefixes[sourcePrefix]) {
-              remappedPrefixes[sourcePrefix] = true;
-              log.debug(' ', source, '>>', target);
-            }
-            return target;
-          }
-        }
+    function handlePrefixes(source) {
+      if (!remapPrefixes) {
+        return undefined;
       }
 
-      // Replaces source paths using a custom function
-      /**
-       * @param {string} source
-       * @returns {string | undefined}
-       */
-      function handleMapper(source) {
-        if (!remapSource) {
-          return undefined;
-        }
-
-        const target = remapSource(source);
-        // Remapping is considered happenned only if the handler returns
-        // a non-empty path different from the existing one
-        if (target && target !== source) {
+      let sourcePrefix, targetPrefix, target;
+      for (sourcePrefix in remapPrefixes) {
+        targetPrefix = remapPrefixes[sourcePrefix];
+        if (source.startsWith(sourcePrefix)) {
+          target = targetPrefix + source.substring(sourcePrefix.length);
           ++remapped;
-          // Log only one remapping as an example to prevent flooding the console
-          if (!remappedSource) {
-            remappedSource = true;
+          // Log only one remapping as an example for each prefix to prevent
+          // flood of messages on the console
+          if (!remappedPrefixes[sourcePrefix]) {
+            remappedPrefixes[sourcePrefix] = true;
             log.debug(' ', source, '>>', target);
           }
           return target;
         }
       }
-
-      const result = sources.map((rawSource) => {
-        const source = rawSource.replace(/\\/g, '/');
-
-        const sourceWithRemappedPrefixes = handlePrefixes(source);
-        if (sourceWithRemappedPrefixes) {
-          // One remapping is enough; if a prefix was replaced, do not let
-          // the handler below check the source path any more
-          return sourceWithRemappedPrefixes;
-        }
-
-        return handleMapper(source) || source;
-      });
-
-      if (remapped) {
-        log.debug('  ...');
-        log.debug(' ', remapped, 'sources from', all, 'were remapped');
-      }
-
-      return result;
     }
 
+    // Replaces source paths using a custom function
+    /**
+     * @param {string} source
+     * @returns {string | undefined}
+     */
+    function handleMapper(source) {
+      if (!remapSource) {
+        return undefined;
+      }
+
+      const target = remapSource(source);
+      // Remapping is considered happenned only if the handler returns
+      // a non-empty path different from the existing one
+      if (target && target !== source) {
+        ++remapped;
+        // Log only one remapping as an example to prevent flooding the console
+        if (!remappedSource) {
+          remappedSource = true;
+          log.debug(' ', source, '>>', target);
+        }
+        return target;
+      }
+    }
+
+    const result = sources.map((rawSource) => {
+      const source = rawSource.replace(/\\/g, '/');
+
+      const sourceWithRemappedPrefixes = handlePrefixes(source);
+      if (sourceWithRemappedPrefixes) {
+        // One remapping is enough; if a prefix was replaced, do not let
+        // the handler below check the source path any more
+        return sourceWithRemappedPrefixes;
+      }
+
+      return handleMapper(source) || source;
+    });
+
+    if (remapped) {
+      log.debug('  ...');
+      log.debug(' ', remapped, 'sources from', all, 'were remapped');
+    }
+
+    return result;
+  }
+
+  return function karmaSourcemapLoaderPreprocessor(content, file, done) {
     /**
      * Parses a string with source map as JSON and handles errors
      * @param {string} data
