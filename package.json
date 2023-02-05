@@ -57,7 +57,7 @@
     }
   },
   "dependencies": {
-    "graceful-fs": "^4.1.2"
+    "graceful-fs": "^4.2.10"
   },
   "devDependencies": {
     "@types/graceful-fs": "^4.1.6",
