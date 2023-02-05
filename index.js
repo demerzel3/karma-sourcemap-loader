@@ -204,8 +204,9 @@ function createSourceMapLocatorPreprocessor(logger, config) {
      * @param {boolean} optional
      */
     function fileMap(mapPath, optional) {
-      fs.exists(mapPath, function (exists) {
-        if (!exists) {
+      fs.readFile(mapPath, function (err, data) {
+        // File does not exist
+        if (err && err.code === 'ENOENT') {
           if (!optional) {
             if (strict) {
               done(new Error('missing external source map for ' + file.originalPath));
@@ -218,25 +219,22 @@ function createSourceMapLocatorPreprocessor(logger, config) {
           return;
         }
 
-        fs.readFile(mapPath, function (err, data) {
-          if (err) {
-            if (strict) {
-              done(
-                new Error(
-                  'reading external source map failed for ' + file.originalPath + '\n' + err
-                )
-              );
-            } else {
-              log.warn('reading external source map failed for', file.originalPath);
-              log.warn(err);
-              done(content);
-            }
-            return;
+        // Error while reading the file
+        if (err) {
+          if (strict) {
+            done(
+              new Error('reading external source map failed for ' + file.originalPath + '\n' + err)
+            );
+          } else {
+            log.warn('reading external source map failed for', file.originalPath);
+            log.warn(err);
+            done(content);
           }
+          return;
+        }
 
-          log.debug('external source map exists for', file.originalPath);
-          sourceMapData(data.toString());
-        });
+        log.debug('external source map exists for', file.originalPath);
+        sourceMapData(data.toString());
       });
     }
 
