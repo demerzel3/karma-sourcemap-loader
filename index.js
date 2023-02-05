@@ -4,8 +4,7 @@ const path = require('path');
 
 const sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
 
-const createSourceMapLocatorPreprocessor = function (args, logger, config) {
-  /* c8 ignore next */
+const createSourceMapLocatorPreprocessor = function (logger, config) {
   const options = (config && config.sourceMapLoader) || {};
   const remapPrefixes = options.remapPrefixes;
   const remapSource = options.remapSource;
@@ -85,7 +84,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
       try {
         return JSON.parse(data);
       } catch (err) {
-        /* c8 ignore next 5 */
         if (strict) {
           done(
             new Error('malformed source map for', file.originalPath + '\nError: ' + err.message)
@@ -122,7 +120,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
           updateSourceMap(sourceMap);
         }
         file.sourceMap = sourceMap;
-        /* c8 ignore next 3 */
       } else if (sourceMap === false) {
         return;
       }
@@ -151,7 +148,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
         log.debug('raw inline source map for', file.originalPath);
         sourceMapData(decodeURIComponent(inlineData.slice(1)));
       } else {
-        /* c8 ignore next 2 */
         if (strict) {
           done(new Error('invalid source map in ' + file.originalPath));
         } else {
@@ -165,7 +161,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
       fs.exists(mapPath, function (exists) {
         if (!exists) {
           if (!optional) {
-            /* c8 ignore next 3 */
             if (strict) {
               done(new Error('missing external source map for ' + file.originalPath));
               return;
@@ -178,7 +173,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
         }
 
         fs.readFile(mapPath, function (err, data) {
-          /* c8 ignore next 10 */
           if (err) {
             if (strict) {
               done(
@@ -210,7 +204,6 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
         if (sourceMap) {
           updateSourceMap(sourceMap);
           content = JSON.stringify(sourceMap);
-          /* c8 ignore next 3 */
         } else if (sourceMap === false) {
           return;
         }
@@ -248,7 +241,7 @@ const createSourceMapLocatorPreprocessor = function (args, logger, config) {
   };
 };
 
-createSourceMapLocatorPreprocessor.$inject = ['args', 'logger', 'config'];
+createSourceMapLocatorPreprocessor.$inject = ['logger', 'config'];
 
 // PUBLISH DI MODULE
 module.exports = {
