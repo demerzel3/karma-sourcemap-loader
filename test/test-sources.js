@@ -1,6 +1,6 @@
 function fetchFile(name) {
   const url = `/base/out/${name}`;
-  return fetch(url).then(response => response.text());
+  return fetch(url).then((response) => response.text());
 }
 
 describe('remap source prefixes', () => {

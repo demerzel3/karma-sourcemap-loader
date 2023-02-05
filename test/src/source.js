@@ -1,2 +1,2 @@
-import shared from './shared.js'
-shared()
+import shared from './shared.js';
+shared();
