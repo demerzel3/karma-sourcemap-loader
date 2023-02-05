@@ -2,7 +2,8 @@
 const fs = require('graceful-fs');
 const path = require('path');
 
-const sourcemapUrlRegeExp = /^\/\/#\s*sourceMappingURL=/;
+const SOURCEMAP_URL_REGEX = /^\/\/#\s*sourceMappingURL=/;
+const CHARSET_REGEX = /^;charset=([^;]+);/;
 
 const createSourceMapLocatorPreprocessor = function (logger, config) {
   const options = (config && config.sourceMapLoader) || {};
@@ -12,9 +13,7 @@ const createSourceMapLocatorPreprocessor = function (logger, config) {
   const onlyWithURL = options.onlyWithURL;
   const strict = options.strict;
   const needsUpdate = remapPrefixes || remapSource || useSourceRoot;
-
   const log = logger.create('preprocessor.sourcemap');
-  const charsetRegex = /^;charset=([^;]+);/;
 
   return function (content, file, done) {
     function remapSources(sources) {
@@ -129,8 +128,8 @@ const createSourceMapLocatorPreprocessor = function (logger, config) {
     function inlineMap(inlineData) {
       let charset = 'utf-8';
 
-      if (charsetRegex.test(inlineData)) {
-        const matches = inlineData.match(charsetRegex);
+      if (CHARSET_REGEX.test(inlineData)) {
+        const matches = inlineData.match(CHARSET_REGEX);
 
         if (matches.length === 2) {
           charset = matches[1];
@@ -223,8 +222,8 @@ const createSourceMapLocatorPreprocessor = function (logger, config) {
 
     let mapUrl;
 
-    if (sourcemapUrlRegeExp.test(lastLine)) {
-      mapUrl = lastLine.replace(sourcemapUrlRegeExp, '');
+    if (SOURCEMAP_URL_REGEX.test(lastLine)) {
+      mapUrl = lastLine.replace(SOURCEMAP_URL_REGEX, '');
     }
 
     if (!mapUrl) {
